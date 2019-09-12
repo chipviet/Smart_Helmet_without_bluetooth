@@ -32,7 +32,7 @@ class LoginActivity : AppCompatActivity() {
                 FirebaseAuth.getInstance().signInWithEmailAndPassword(email,password)
                     .addOnCompleteListener {
                         if(it.isSuccessful) {
-                            val intent = Intent(this, ConnectViaBluetoothActivity::class.java)
+                            val intent = Intent(this, DashboardActivity::class.java)
                             startActivity(intent)
                             Log.d("LoginActivity","Successfully to Login Account")
                         }

@@ -88,17 +88,33 @@ import java.util.*
      var toUser: User? = null
 
 //*******************************************Bluetooth**************************************************************
-//     internal var btnOn: Button,
-//     internal var btnOff:Button
-//     internal var txtArduino: TextView? = null,
-//     internal var txtString:TextView
-//     internal var txtStringLength:TextView
-//     internal var sensorView0:TextView
-//     internal var sensorView1:TextView
-//     internal var sensorView2:TextView
-//     internal var sensorView3:TextView
-//     internal var get_data:TextView? = null
-//*************************************************************
+////     internal var btnOn: Button,
+////     internal var btnOff:Button
+////     internal var txtArduino: TextView? = null,
+////     internal var txtString:TextView
+////     internal var txtStringLength:TextView
+////     internal var sensorView0:TextView
+////     internal var sensorView1:TextView
+////     internal var sensorView2:TextView
+////     internal var sensorView3:TextView
+////     internal var get_data:TextView? = null
+////*************************************************************
+////     internal lateinit var bluetoothIn: Handler
+////
+////     internal val handlerState = 0                        //used to identify handler message
+////     private var btAdapter: BluetoothAdapter? = null
+////     private var btSocket: BluetoothSocket? = null
+////     private val recDataString = StringBuilder()
+////
+////     private var mConnectedThread: ConnectedThread? = null
+//
+//     // SPP UUID service - this should work for most devices
+//     private val BTMODULEUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
+////
+////     // String for MAC address
+////     private val address: String? = null
+////
+////     //**************************************************
 //     internal lateinit var bluetoothIn: Handler
 //
 //     internal val handlerState = 0                        //used to identify handler message
@@ -107,22 +123,6 @@ import java.util.*
 //     private val recDataString = StringBuilder()
 //
 //     private var mConnectedThread: ConnectedThread? = null
-
-     // SPP UUID service - this should work for most devices
-     private val BTMODULEUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
-//
-//     // String for MAC address
-//     private val address: String? = null
-//
-//     //**************************************************
-     internal lateinit var bluetoothIn: Handler
-
-     internal val handlerState = 0                        //used to identify handler message
-     private var btAdapter: BluetoothAdapter? = null
-     private var btSocket: BluetoothSocket? = null
-     private val recDataString = StringBuilder()
-
-     private var mConnectedThread: ConnectedThread? = null
 //*****************************************current location************************************************************
 
 
@@ -245,114 +245,114 @@ import java.util.*
 
         }
 //*************************************************** bluetooth*********************************************************
-        //Link the buttons and textViews to respective views
-        bluetoothIn = @SuppressLint("HandlerLeak")
-        object : Handler() {
-            override fun handleMessage(msg: android.os.Message) {
-                    if (msg.what == handlerState) {                                     //if message is what we want
-                    val readMessage =
-                        msg.obj as String                                                  // msg.arg1 = bytes from connect thread
-                    recDataString.append(readMessage)                                      //keep appending to string until ~
-                    val endOfLineIndex = recDataString.indexOf("~")                    // determine the end-of-line
-                    if (endOfLineIndex > 0) {                                           // make sure there data before ~
-                        var dataInPrint = recDataString.substring(0, endOfLineIndex)    // extract string
-                      //  txtArduino.setText("Data Received = $dataInPrint")
-                        Log.d("Data", "Data Received = $dataInPrint")
-                        val dataLength = dataInPrint.length                          //get length of data received
-                        //txtArduino.setText("String Length = $dataLength")
-
-                        if (recDataString[0] == '#')
-                        //if it starts with # we know it is what we are looking for
-                        {
-                             humidity = recDataString.substring(9, 14)                //get sensor value from string between indices 1-5
-                            temperature = recDataString.substring(15, 20)            //same again...
-                             alcohol_concentration = recDataString.substring(21, 25)
-
-                            //check station
-                             examinate_alcohol = recDataString.substring(1, 2)
-                            sleeping_level = recDataString.substring(3,4)
-                            val sound_off = recDataString.substring(5,6)
-                            examinate_impact= recDataString.substring(7,8)
-                           // val send_sms = recDataString.substring(9,10)
-
-                            sensorView0.text = " Humidity = " + humidity + "%"                  //update the textviews with sensor values
-                            sensorView1.text = " Temperature = " + temperature + "°C"
-                            sensorView2.text = "  Alcohol content = " + alcohol_concentration + "mg/l"
-                            //sensorView3.text = " Sensor 3 Voltage = " + examinate_alcohol + "V"
-
-                           saveDataToFirebaseDatabase()
-
-                            //**************************Handler**********************************************
-
-                            if(examinate_alcohol == "1") {
-                                //sendSMSAlcohol()
-                                mp_alcohol.start()
-                                Log.d("data","Nồng độ vượt mức cho phép")
-                                test_sleeping.setText("Nồng độ cồn vượt mức cho phép ");
-                            }
-                            if(examinate_impact =="1") {
-                                //sendSMSImpact()
-                                //SleepingWarning()
-                                mp_impact.start()
-                                Log.d("data","Có va đập")
-                                test_sleeping.setText("Có va đập");
-                              //  openSound()
-                            }
-                            if(sleeping_level =="1") {
-                                Log.d("data","buồn ngủ")
-                                //openSound()
-                                test_sleeping.setText("buồn ngủ");
-                                mp.start()
-                            }
-                            if(sound_off == "1") {
-                               // pauseSound()
-                                if (mp.isPlaying) {
-                                    // Stop
-                                    mp.pause()
-                                    //playBtn.setBackgroundResource(R.drawable.play)
-
-                                }
-                                if(mp_alcohol.isPlaying) {
-                                    mp_alcohol.pause()
-                                }
-                                if(mp_impact.isPlaying) {
-                                    mp_impact.pause()
-                                }
-                            }
-//                            stop_btn.setOnClickListener {
-////                                openSound()
-//                                mp.start()
-//                               }
-//                            warning_btn.setOnClickListener {
-//                                //pauseSound()
-//                                mp.pause()
-//                            }
-
-                        }
-                        recDataString.delete(0, recDataString.length)                    //clear all string data
-                        // strIncom =" ";
-                        dataInPrint = " "
-                        //performSendMessage()
-                    }
-                }
-            }
-        }
-
-        btAdapter = BluetoothAdapter.getDefaultAdapter()       // get Bluetooth adapter
-        checkBTState()
-
-      //   Set up onClick listeners for buttons to send 1 or 0 to turn on/off LED
-   //     buttonOff.setOnClickListener(View.OnClickListener {
-//            mConnectedThread?.write("a")    // Send "0" via Bluetooth
-//            Toast.makeText(baseContext, "Turn off LED", Toast.LENGTH_SHORT).show()
-//            Log.d("Data", "Send a character")
-//        })
+//        //Link the buttons and textViews to respective views
+//        bluetoothIn = @SuppressLint("HandlerLeak")
+//        object : Handler() {
+//            override fun handleMessage(msg: android.os.Message) {
+//                    if (msg.what == handlerState) {                                     //if message is what we want
+//                    val readMessage =
+//                        msg.obj as String                                                  // msg.arg1 = bytes from connect thread
+//                    recDataString.append(readMessage)                                      //keep appending to string until ~
+//                    val endOfLineIndex = recDataString.indexOf("~")                    // determine the end-of-line
+//                    if (endOfLineIndex > 0) {                                           // make sure there data before ~
+//                        var dataInPrint = recDataString.substring(0, endOfLineIndex)    // extract string
+//                      //  txtArduino.setText("Data Received = $dataInPrint")
+//                        Log.d("Data", "Data Received = $dataInPrint")
+//                        val dataLength = dataInPrint.length                          //get length of data received
+//                        //txtArduino.setText("String Length = $dataLength")
 //
-//        buttonOn.setOnClickListener {
-//            mConnectedThread?.write("b")    // Send "1" via Bluetooth
-//            Toast.makeText(baseContext, "Turn on LED", Toast.LENGTH_SHORT).show()
-//            Log.d("Data", "Send b character")
+//                        if (recDataString[0] == '#')
+//                        //if it starts with # we know it is what we are looking for
+//                        {
+//                             humidity = recDataString.substring(9, 14)                //get sensor value from string between indices 1-5
+//                            temperature = recDataString.substring(15, 20)            //same again...
+//                             alcohol_concentration = recDataString.substring(21, 25)
+//
+//                            //check station
+//                             examinate_alcohol = recDataString.substring(1, 2)
+//                            sleeping_level = recDataString.substring(3,4)
+//                            val sound_off = recDataString.substring(5,6)
+//                            examinate_impact= recDataString.substring(7,8)
+//                           // val send_sms = recDataString.substring(9,10)
+//
+//                            sensorView0.text = " Humidity = " + humidity + "%"                  //update the textviews with sensor values
+//                            sensorView1.text = " Temperature = " + temperature + "°C"
+//                            sensorView2.text = "  Alcohol content = " + alcohol_concentration + "mg/l"
+//                            //sensorView3.text = " Sensor 3 Voltage = " + examinate_alcohol + "V"
+//
+//                           saveDataToFirebaseDatabase()
+//
+//                            //**************************Handler**********************************************
+//
+//                            if(examinate_alcohol == "1") {
+//                                //sendSMSAlcohol()
+//                                mp_alcohol.start()
+//                                Log.d("data","Nồng độ vượt mức cho phép")
+//                                test_sleeping.setText("Nồng độ cồn vượt mức cho phép ");
+//                            }
+//                            if(examinate_impact =="1") {
+//                                //sendSMSImpact()
+//                                //SleepingWarning()
+//                                mp_impact.start()
+//                                Log.d("data","Có va đập")
+//                                test_sleeping.setText("Có va đập");
+//                              //  openSound()
+//                            }
+//                            if(sleeping_level =="1") {
+//                                Log.d("data","buồn ngủ")
+//                                //openSound()
+//                                test_sleeping.setText("buồn ngủ");
+//                                mp.start()
+//                            }
+//                            if(sound_off == "1") {
+//                               // pauseSound()
+//                                if (mp.isPlaying) {
+//                                    // Stop
+//                                    mp.pause()
+//                                    //playBtn.setBackgroundResource(R.drawable.play)
+//
+//                                }
+//                                if(mp_alcohol.isPlaying) {
+//                                    mp_alcohol.pause()
+//                                }
+//                                if(mp_impact.isPlaying) {
+//                                    mp_impact.pause()
+//                                }
+//                            }
+////                            stop_btn.setOnClickListener {
+//////                                openSound()
+////                                mp.start()
+////                               }
+////                            warning_btn.setOnClickListener {
+////                                //pauseSound()
+////                                mp.pause()
+////                            }
+//
+//                        }
+//                        recDataString.delete(0, recDataString.length)                    //clear all string data
+//                        // strIncom =" ";
+//                        dataInPrint = " "
+//                        //performSendMessage()
+//                    }
+//                }
+//            }
 //        }
+//
+//        btAdapter = BluetoothAdapter.getDefaultAdapter()       // get Bluetooth adapter
+//        checkBTState()
+//
+//      //   Set up onClick listeners for buttons to send 1 or 0 to turn on/off LED
+//   //     buttonOff.setOnClickListener(View.OnClickListener {
+////            mConnectedThread?.write("a")    // Send "0" via Bluetooth
+////            Toast.makeText(baseContext, "Turn off LED", Toast.LENGTH_SHORT).show()
+////            Log.d("Data", "Send a character")
+////        })
+////
+////        buttonOn.setOnClickListener {
+////            mConnectedThread?.write("b")    // Send "1" via Bluetooth
+////            Toast.makeText(baseContext, "Turn on LED", Toast.LENGTH_SHORT).show()
+////            Log.d("Data", "Send b character")
+////        }
 
         //**************************************************SendSMS****************************************************
 
@@ -374,132 +374,132 @@ import java.util.*
 
 //*********************************************Bluetooth*************************************************************
 
-@Throws(IOException::class)
-private fun createBluetoothSocket(device: BluetoothDevice): BluetoothSocket {
-
-    return device.createRfcommSocketToServiceRecord(BTMODULEUUID)
-    //creates secure outgoing connecetion with BT device using UUID
-}
-
-     public override fun onResume() {
-         super.onResume()
-
-         //Get MAC address from DeviceListActivity via intent
-         val intent = intent
-
-         //Get the MAC address from the DeviceListActivty via EXTRA
-         //address = intent.getStringExtra(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
-
-         //create device and set the MAC address
-         val device = btAdapter!!.getRemoteDevice("98:D3:31:FD:2A:B9")
-
-         try {
-             btSocket = createBluetoothSocket(device)
-         } catch (e: IOException) {
-             Toast.makeText(baseContext, "Socket creation failed", Toast.LENGTH_LONG).show()
-         }
-
-         // Establish the Bluetooth socket connection.
-         try {
-             btSocket!!.connect()
-         } catch (e: IOException) {
-             try {
-                 btSocket!!.close()
-             } catch (e2: IOException) {
-                 //insert code to deal with this
-             }
-
-         }
-
-         mConnectedThread = ConnectedThread(btSocket!!)
-         mConnectedThread!!.start()
-
-         //I send a character when resuming.beginning transmission to check device is connected
-         //If it is not an exception will be thrown in the write method and finish() will be called
-         mConnectedThread!!.write("x")
-     }
-
-     public override fun onPause() {
-         super.onPause()
-         try {
-             //Don't leave Bluetooth sockets open when leaving activity
-             btSocket!!.close()
-         } catch (e2: IOException) {
-             //insert code to deal with this
-         }
-
-     }
-
-     //Checks that the Android device Bluetooth is available and prompts to be turned on if off
-     private fun checkBTState() {
-
-         if (btAdapter == null) {
-             Toast.makeText(baseContext, "Device does not support bluetooth", Toast.LENGTH_LONG).show()
-         } else {
-             if (btAdapter!!.isEnabled()) {
-             } else {
-                 val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                 startActivityForResult(enableBtIntent, 1)
-             }
-         }
-     }
-
-     //create new class for connect thread
-     private inner class ConnectedThread//creation of the connect thread
-         (socket: BluetoothSocket) : Thread() {
-         private val mmInStream: InputStream?
-         private val mmOutStream: OutputStream?
-
-         init {
-             var tmpIn: InputStream? = null
-             var tmpOut: OutputStream? = null
-
-             try {
-                 //Create I/O streams for connection
-                 tmpIn = socket.inputStream
-                 tmpOut = socket.outputStream
-             } catch (e: IOException) {
-             }
-
-             mmInStream = tmpIn
-             mmOutStream = tmpOut
-         }
-
-         override fun run() {
-             val buffer = ByteArray(1024)
-             var bytes: Int
-
-             // Keep looping to listen for received messages
-             while (true) {
-                 try {
-                     bytes = mmInStream!!.read(buffer)            //read bytes from input buffer
-                     val readMessage = String(buffer, 0, bytes)
-                     // Send the obtained bytes to the UI Activity via handler
-                     bluetoothIn.obtainMessage(handlerState, bytes, -1, readMessage).sendToTarget()
-                     Log.d("Data", "readMessage:$readMessage")
-                     //get_data.setText(readMessage.toString());
-
-                 } catch (e: IOException) {
-                     break
-                 }
-
-             }
-         }
-
-         //write method
-         fun write(input: String) {
-             val msgBuffer = input.toByteArray()           //converts entered String into bytes
-             try {
-                 mmOutStream!!.write(msgBuffer)                //write bytes over BT connection via outstream
-             } catch (e: IOException) {
-                 //if you cannot write, close the application
-                 Toast.makeText(baseContext, "Connection Failure", Toast.LENGTH_LONG).show()
-                 finish()
-
-             }
-
-         }
-     }
+//@Throws(IOException::class)
+//private fun createBluetoothSocket(device: BluetoothDevice): BluetoothSocket {
+//
+//    return device.createRfcommSocketToServiceRecord(BTMODULEUUID)
+//    //creates secure outgoing connecetion with BT device using UUID
+//}
+//
+//     public override fun onResume() {
+//         super.onResume()
+//
+//         //Get MAC address from DeviceListActivity via intent
+//         val intent = intent
+//
+//         //Get the MAC address from the DeviceListActivty via EXTRA
+//         //address = intent.getStringExtra(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+//
+//         //create device and set the MAC address
+//         val device = btAdapter!!.getRemoteDevice("98:D3:31:FD:2A:B9")
+//
+//         try {
+//             btSocket = createBluetoothSocket(device)
+//         } catch (e: IOException) {
+//             Toast.makeText(baseContext, "Socket creation failed", Toast.LENGTH_LONG).show()
+//         }
+//
+//         // Establish the Bluetooth socket connection.
+//         try {
+//             btSocket!!.connect()
+//         } catch (e: IOException) {
+//             try {
+//                 btSocket!!.close()
+//             } catch (e2: IOException) {
+//                 //insert code to deal with this
+//             }
+//
+//         }
+//
+//         mConnectedThread = ConnectedThread(btSocket!!)
+//         mConnectedThread!!.start()
+//
+//         //I send a character when resuming.beginning transmission to check device is connected
+//         //If it is not an exception will be thrown in the write method and finish() will be called
+//         mConnectedThread!!.write("x")
+//     }
+//
+//     public override fun onPause() {
+//         super.onPause()
+//         try {
+//             //Don't leave Bluetooth sockets open when leaving activity
+//             btSocket!!.close()
+//         } catch (e2: IOException) {
+//             //insert code to deal with this
+//         }
+//
+//     }
+//
+//     //Checks that the Android device Bluetooth is available and prompts to be turned on if off
+//     private fun checkBTState() {
+//
+//         if (btAdapter == null) {
+//             Toast.makeText(baseContext, "Device does not support bluetooth", Toast.LENGTH_LONG).show()
+//         } else {
+//             if (btAdapter!!.isEnabled()) {
+//             } else {
+//                 val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+//                 startActivityForResult(enableBtIntent, 1)
+//             }
+//         }
+//     }
+//
+//     //create new class for connect thread
+//     private inner class ConnectedThread//creation of the connect thread
+//         (socket: BluetoothSocket) : Thread() {
+//         private val mmInStream: InputStream?
+//         private val mmOutStream: OutputStream?
+//
+//         init {
+//             var tmpIn: InputStream? = null
+//             var tmpOut: OutputStream? = null
+//
+//             try {
+//                 //Create I/O streams for connection
+//                 tmpIn = socket.inputStream
+//                 tmpOut = socket.outputStream
+//             } catch (e: IOException) {
+//             }
+//
+//             mmInStream = tmpIn
+//             mmOutStream = tmpOut
+//         }
+//
+//         override fun run() {
+//             val buffer = ByteArray(1024)
+//             var bytes: Int
+//
+//             // Keep looping to listen for received messages
+//             while (true) {
+//                 try {
+//                     bytes = mmInStream!!.read(buffer)            //read bytes from input buffer
+//                     val readMessage = String(buffer, 0, bytes)
+//                     // Send the obtained bytes to the UI Activity via handler
+//                     bluetoothIn.obtainMessage(handlerState, bytes, -1, readMessage).sendToTarget()
+//                     Log.d("Data", "readMessage:$readMessage")
+//                     //get_data.setText(readMessage.toString());
+//
+//                 } catch (e: IOException) {
+//                     break
+//                 }
+//
+//             }
+//         }
+//
+//         //write method
+//         fun write(input: String) {
+//             val msgBuffer = input.toByteArray()           //converts entered String into bytes
+//             try {
+//                 mmOutStream!!.write(msgBuffer)                //write bytes over BT connection via outstream
+//             } catch (e: IOException) {
+//                 //if you cannot write, close the application
+//                 Toast.makeText(baseContext, "Connection Failure", Toast.LENGTH_LONG).show()
+//                 finish()
+//
+//             }
+//
+//         }
+//     }
 //**************************************************Date and Time***********************************************************
     private fun dateAndTime() {
         val t = object : Thread() {
